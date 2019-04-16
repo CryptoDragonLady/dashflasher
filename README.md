@@ -14,12 +14,15 @@ cmd is a number from 0 to 2
 2 is read binary data, output to dumpfile, then flash binary data from flashfile
 
 example (to read data and ouput to dumpfile)
+
 dashflasher 0 dashdump
 
 example (to write dump to dashboard)
+
 dashflasher 1 full_BLE.bin
 
 example (to read data and ouput to dumpfile and write to dashboard)
+
 dashflasher 2 dashdump full_BLE.bin
 
 Also, trying to read (dump) using a file that already exists will cause termination of the script, as well as trying to write (flash) a file that doesnt exist
