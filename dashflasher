@@ -1,0 +1,108 @@
+#!/bin/bash
+INTF="/usr/share/openocd/scripts/interface/stlink-v2.cfg"
+TGT="/usr/share/openocd/scripts/target/nrf51.cfg"
+#--------------You should not need to edit anything below this line--------------
+if [[ ! -e $INTF ]]; then
+
+echo "Unable to find interface file for openocd, exiting"
+exit
+fi
+if [[ ! -e $TGT ]]; then
+echo "unable to find target file for openocd, exiting"
+exit
+fi 
+
+CMD1=$1
+CMD2=$2
+CMD3=$3
+CMD4=$3
+function main() {
+if [[ $CMD1 ]]; then
+        if [[ $CMD2 ]]; then
+                if [[ $CMD3 ]]; then
+                        if [[ $CMD1 -eq 2 ]]; then
+                                readandwritebin "$@"
+                                fi
+                else
+                if [[ $CMD1 -eq 0 ]]; then
+                        readbin
+                        fi
+                if [[ $CMD1 -eq 1 ]]; then
+                        writebin
+                        fi
+                fi
+        else
+        helpme
+        
+exit
+fi
+        if [[ $CMD1 -eq 2 ]]; then
+                if [[ ! $CMD3 ]]; then
+                        echo "Improper number of arguments"
+                        helpme
+                        exit
+                        fi
+                fi
+
+fi
+}
+
+function readbin() {
+        if [[ -f "${CMD2}.bin" ]]; then
+                echo "$CMD2"".bin already exists, exiting"
+                exit
+        else
+                echo "Reading flash bank 1 and 2 and outputting to ""$CMD2"".bin and ""$CMD2""ucir.bin"
+#                openocd -f $INTF -f $TGT -c "init; reset halt; flash read_bank 0 ""$CMD2"".bin 0x00000000 0x40000; flash read_bank 1 ""$CMD2""ucir.bin 0x10001000 0x400"
+        fi
+}
+function writebin() {
+        if [[ -f "$CMD2" ]]; then
+                echo "Found ""$CMD2"" and flashing ""$CMD2"" to bank 0 and writing default ucir to bank 1"
+                #openocd -f $INTF -f $TGT -c "init; reset halt; nrf51 mass_erase; flash fillw 0x10001014 0x0003C000 0x01; flash write_image ""$CMD2"" 0; halt; reset"
+        else 
+                echo "File ""$CMD2"" does not exist, exiting"
+                exit
+        fi
+}
+function readandwritebin() {
+readbin
+CMD2=$CMD4
+writebin
+CMD2=$2
+}
+function helpme() {
+echo ""
+echo "dashflasher (c)2019 CryptoDragonLady"
+echo "------------------------------------"
+echo ""
+echo "Usage: dashflasher [cmd] (dumpfile) (flashfile)"
+echo ""
+echo "cmd is a number from 0 to 2"
+echo "0 is read binary data and output to dumpfile (it will append .bin to the dumpfile specified)"
+echo "1 is write binary data from file flashfile (it will not append .bin to flashfile and expects full path if not in current directory"
+echo "2 is read binary data, output to dumpfile, then flash binary data from flashfile"
+echo ""
+echo "note: write will also write generic ucir data making the dashboard work"
+echo ""
+echo "example (to read data and ouput to dumpfile)"
+echo "dashflasher 0 dashdump"
+echo ""
+echo "example (to write dump to dashboard)"
+echo "dashflasher 1 full_BLE.bin"
+echo ""
+echo "example (to read data and ouput to dumpfile and write to dashboard)"
+echo "dashflasher 2 dashdump full_BLE.bin"
+echo ""
+echo "Also, trying to read using a file that already exists will cause termination of the script, as well as trying to write a file that doesnt exist"
+echo ""
+echo "bugs may be reported to dragonlady@rootd.it"
+echo "or find me in the scooterhacking.org discord"
+}
+main "$@"
+exit
+
+
+
+
+
