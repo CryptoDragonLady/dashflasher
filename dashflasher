@@ -53,13 +53,13 @@ function readbin() {
                 exit
         else
                 echo "Reading flash bank 1 and 2 and outputting to ""$CMD2"".bin and ""$CMD2""ucir.bin"
-                openocd -f $INTF -f $TGT -c "init; reset halt; flash read_bank 0 ""$CMD2"".bin 0x00000000 0x40000; flash read_bank 1 ""$CMD2""ucir.bin 0x10001000 0x400"
+                openocd -f $INTF -f $TGT -c "adapter_khz 200; init; reset halt; flash read_bank 0 ""$CMD2"".bin 0x00000000 0x40000; flash read_bank 1 ""$CMD2""ucir.bin 0x10001000 0x400"
         fi
 }
 function writebin() {
         if [[ -f "$CMD2" ]]; then
                 echo "Found ""$CMD2"" and flashing ""$CMD2"" to bank 0 and writing default ucir to bank 1"
-                openocd -f $INTF -f $TGT -c "init; reset halt; nrf51 mass_erase; flash fillw 0x10001014 0x0003C000 0x01; flash write_image ""$CMD2"" 0; halt; reset"
+                openocd -f $INTF -f $TGT -c "adapter_khz 200; init; reset halt; nrf51 mass_erase; flash fillw 0x10001014 0x0003C000 0x01; flash write_image ""$CMD2"" 0; halt; reset"
         else 
                 echo "File ""$CMD2"" does not exist, exiting"
                 exit
