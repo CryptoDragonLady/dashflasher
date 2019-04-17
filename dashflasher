@@ -30,6 +30,9 @@ if [[ $CMD1 ]]; then
                 if [[ $CMD1 -eq 1 ]]; then
                         writebin
                         fi
+                if [[ $CMD1 -eq 3 ]]; then
+                        cmdshell
+                        fi
                 fi
         else
         helpme
@@ -46,6 +49,16 @@ fi
 
 fi
 }
+function cmdshell() {
+                echo "Starting OpenOCD and Logging output to "$CMD2".log"
+                openocd --log_output $CMD2.log -f $INTF -f $TGT &
+		sleep 3
+		echo "Entering Shell"
+		telnet localhost 4444
+		echo "Killing OpenOCD"
+		killall openocd
+exit
+}
 
 function readbin() {
         if [[ -f "${CMD2}.bin" ]]; then
@@ -59,7 +72,7 @@ function readbin() {
 function writebin() {
         if [[ -f "$CMD2" ]]; then
                 echo "Found ""$CMD2"" and flashing ""$CMD2"" to bank 0 and writing default ucir to bank 1"
-                openocd -f $INTF -f $TGT -c "adapter_khz 300; init; reset halt; nrf51 mass_erase; flash fillw 0x10001014 0x0003C000 0x01; flash write_image ""$CMD2"" 0; halt; reset; exit"
+                openocd -f $INTF -f $TGT -c "adapter_khz 300; init; reset halt; halt; nrf51 mass_erase; flash fillw 0x10001014 0x0003C000 0x01; flash write_image ""$CMD2"" 0; halt; reset; exit"
         else 
                 echo "File ""$CMD2"" does not exist, exiting"
                 exit
